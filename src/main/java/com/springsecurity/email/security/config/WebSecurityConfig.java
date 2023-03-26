@@ -24,9 +24,17 @@ public class WebSecurityConfig {
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManagerBuilder auth) throws Exception {
-		http.csrf().disable().authorizeHttpRequests().antMatchers("/api/registration/**").permitAll().anyRequest()
+		
+	
+		
+		http.csrf().disable().authorizeHttpRequests()
+		.antMatchers("/api/registration/**").permitAll()
+		.antMatchers("/h2-console/**").permitAll()
+		.anyRequest()
 				.authenticated().and().formLogin();
+		 http.headers().frameOptions().sameOrigin();
 		auth.authenticationProvider(daoAuthenticationProvider());
+		
 		return http.build();
 	}
 
