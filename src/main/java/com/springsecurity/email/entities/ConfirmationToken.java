@@ -38,14 +38,12 @@ public class ConfirmationToken {
 	@ManyToOne
 	@JoinColumn(nullable = false, name = "user_id")
 	private User user;
-	
-	public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiredAt,
-			LocalDateTime confirmedAt, User user) {
+
+	public ConfirmationToken(String token, LocalDateTime createdAt, LocalDateTime expiredAt, User user) {
 		super();
 		this.token = token;
 		this.createdAt = createdAt;
 		this.expiredAt = expiredAt;
-		this.confirmedAt = confirmedAt;
 		this.user = user;
 	}
 
