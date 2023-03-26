@@ -1,9 +1,13 @@
 package com.springsecurity.email.services;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.springsecurity.email.components.EmailSender;
+import com.springsecurity.email.entities.ConfirmationToken;
 import com.springsecurity.email.entities.RegistrationRequest;
 import com.springsecurity.email.entities.User;
 import com.springsecurity.email.enums.UserRole;
@@ -16,6 +20,9 @@ public class RegistrationService {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private ConfirmationTokenService confirmationTokenService;
 	
 	@Autowired
 	private EmailSender emailSender;
@@ -35,6 +42,29 @@ public class RegistrationService {
 		return token;
 	}
 
+	  @Transactional
+	    public String confirmToken(String token) {
+	        ConfirmationToken confirmationToken = confirmationTokenService
+	                .getToken(token)
+	                .orElseThrow(() ->
+	                        new IllegalStateException("token not found"));
+
+	        if (confirmationToken.getConfirmedAt() != null) {
+	            throw new IllegalStateException("email already confirmed");
+	        }
+
+	        LocalDateTime expiredAt = confirmationToken.getExpiredAt();
+
+	        if (expiredAt.isBefore(LocalDateTime.now())) {
+	            throw new IllegalStateException("token expired");
+	        }
+
+	       
+	        userService.enableUser(
+	                confirmationToken.getUser().getEmail());
+	        return "confirmed";
+	    }
+	
 	private String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +
